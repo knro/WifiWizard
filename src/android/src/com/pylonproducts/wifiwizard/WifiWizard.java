@@ -21,14 +21,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiEnterpriseConfig;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.SupplicantState;
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.NetworkInfo;
+import android.net.wifi.*;
 import android.util.Log;
 import android.os.Build.VERSION;
 
@@ -49,6 +46,11 @@ public class WifiWizard extends CordovaPlugin {
     private static final String SET_WIFI_ENABLED = "setWifiEnabled";
     private static final String TAG = "WifiWizard";
     private static final int    API_VERSION = VERSION.SDK_INT;
+    
+    private static final int PERMISSION_DENIED_ERROR = 20;
+    private static final int FINE_LOCATION_SEC = 0;
+ 
+    private JSONArray scanResultData;
 
     private WifiManager wifiManager;
     private CallbackContext callbackContext;
@@ -94,7 +96,17 @@ public class WifiWizard extends CordovaPlugin {
             return this.startScan(callbackContext);
         }
         else if(action.equals(GET_SCAN_RESULTS)) {
-            return this.getScanResults(callbackContext, data);
+        if(!PermissionHelper.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION))
+        {
+                 scanResultData = data;
+                 PermissionHelper.requestPermission(this, FINE_LOCATION_SEC, Manifest.permission.ACCESS_FINE_LOCATION);
+                 Log.d(TAG, "Location permission not found, requesting from user");
+                 return true;
+        }
+        else
+        {
+                 return this.getScanResults(callbackContext, data);
+        }
         }
         else if(action.equals(DISCONNECT)) {
             return this.disconnect(callbackContext);
@@ -607,4 +619,25 @@ public class WifiWizard extends CordovaPlugin {
         return false;
     }
 
+}
+
+public void onRequestPermissionResult(int requestCode, String[] permissions,  int[] grantResults) throws JSONException 
+{
+         for (int r : grantResults) 
+         {
+             if (r == PackageManager.PERMISSION_DENIED) 
+             {
+                 this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, PERMISSION_DENIED_ERROR));
+                 return;
+             }
+         }
+ 
+         switch (requestCode) 
+         {
+             case FINE_LOCATION_SEC:
+                 Log.d(TAG, "Location permission granted, returning scan results");
+                 this.getScanResults(callbackContext, scanResultData);
+                 this.scanResultData = null;
+                 break;
+         }
 }

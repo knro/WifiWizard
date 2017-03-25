@@ -10,7 +10,9 @@
 	<author>Matt Parsons</author>
 	<keywords>phonegap,network,wifi</keywords>
     <license>Apache 2.0</license>
-	<repo>https://github.com/parsonsmatt/WifiWizard/</repo>
+	<repo>https://github.com/knro/WifiWizard/</repo>
+    
+    <dependency id="cordova-plugin-compat" version="^1.0.0" />
 
     <js-module src="www/WifiWizard.js" name="WifiWizard">
     	<clobbers target="window.WifiWizard"/>
@@ -22,6 +24,7 @@
 			<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 			<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 			<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 		</config-file>
 
 		<config-file target="res/xml/config.xml" parent="/*">
