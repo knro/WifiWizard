@@ -618,11 +618,9 @@ public class WifiWizard extends CordovaPlugin {
         }
         return false;
     }
-
-}
-
-public void onRequestPermissionResult(int requestCode, String[] permissions,  int[] grantResults) throws JSONException 
-{
+    
+    public void onRequestPermissionResult(int requestCode, String[] permissions,  int[] grantResults) throws JSONException 
+    {
          for (int r : grantResults) 
          {
              if (r == PackageManager.PERMISSION_DENIED) 
@@ -640,4 +638,5 @@ public void onRequestPermissionResult(int requestCode, String[] permissions,  in
                  this.scanResultData = null;
                  break;
          }
+    }
 }
